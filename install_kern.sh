@@ -1,11 +1,15 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -eu
 
-ARCH="x86"
-VER=$(grep Linux/${ARCH} .config | cut -d ' ' -f 3)
+CP="cp"
+ARCH="x86_64"
+#SRC="/usr/src/linux"
+DEST="/boot"
+KERNEL=("bzImage" "vmlinuz")
+VERSION="$(make kernelversion)"
 
-cp arch/${ARCH}/boot/bzImage /boot/vmlinuz-${VER} && \
-    cp System.map /boot/System.map-${VER} && \
-    cp .config /boot/config-${VER} && \
-    mkinitramfs -o /boot/initrd.img-${VER} ${VER}
+${CP} "arch/${ARCH}/boot/${KERNEL[0]}" "${DEST}/${KERNEL[1]}-${VERSION}" && \
+    ${CP} "System.map" "${DEST}/System.map-${VERSION}" && \
+    ${CP} ".config" "${DEST}/config-${VERSION}" && \
+    mkinitramfs -o "${DEST}/initrd.img-${VERSION}" "${VERSION}"
