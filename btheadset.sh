@@ -21,7 +21,7 @@ reconnect_device() {
 }
 
 print_help() {
-    echo "$0: Usage: $0 [-cdrshv]"
+    echo "$0: Usage: $0 [-cdrqhv]"
 }
 
 print_version() {
@@ -34,7 +34,7 @@ EOF
 
 FLAGS=(0 0 0 0)
 
-while getopts "cdrshv" OPT; do
+while getopts "cdrqhv" OPT; do
     case "${OPT}" in
         c)
             FLAGS[0]=1
@@ -45,7 +45,7 @@ while getopts "cdrshv" OPT; do
         r)
             FLAGS[2]=1
             ;;
-        s)
+        q)
             FLAGS[3]=1
             ;;
         h)
@@ -65,7 +65,7 @@ while getopts "cdrshv" OPT; do
     esac
 done
 
-test ${FLAGS[3]} == 1 && \
+test ${FLAGS[3]} -eq 1 && \
     exec >/dev/null 2>&1
 if [ ${FLAGS[0]} == 1 ]; then
     connect_device
