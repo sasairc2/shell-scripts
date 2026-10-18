@@ -38,7 +38,7 @@ EOF
             exit 0
             ;;
         h)
-            echo "$0: usage: $0 [-npvh]"
+            echo "$0: Usage: $0 [-npvh]"
             exit 0
             ;;
         \?)
