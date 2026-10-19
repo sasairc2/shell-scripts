@@ -3,6 +3,7 @@
 set -u
 
 BTHCTL="bluetoothctl"
+BTHCTL_DISCON_WAIT=2
 BTHDEV="Victor HA-A22T"
 BTHMAC="XX:XX:XX:XX:XX:XX"
 
@@ -16,25 +17,28 @@ disconnect_device() {
 
 reconnect_device() {
     disconnect_device && \
-        sleep 2 && \
+        sleep ${BTHCTL_DISCON_WAIT} && \
         connect_device
 }
 
 print_help() {
-    echo "$0: Usage: $0 [-cdrqhv]"
+    echo "Usage: $(basename $0) [-cdrqhv] [-n device] [-m address]"
 }
 
 print_version() {
     cat <<EOF
 $0
-BTHDEV=${BTHDEV}
-BTHMAC=${BTHMAC}
+
+BTHCTL="${BTHCTL}"
+BTHCTL_DISCON_WAIT=${BTHCTL_DISCON_WAIT}
+BTHDEV="${BTHDEV}"
+BTHMAC="${BTHMAC}"
 EOF
 }
 
 FLAGS=(0 0 0 0)
 
-while getopts "cdrqhv" OPT; do
+while getopts "cdrqn:m:hv" OPT; do
     case "${OPT}" in
         c)
             FLAGS[0]=1
@@ -47,6 +51,12 @@ while getopts "cdrqhv" OPT; do
             ;;
         q)
             FLAGS[3]=1
+            ;;
+        n)
+            BTHDEV="${OPTARG}"
+            ;;
+        m)
+            BTHMAC="${OPTARG}"
             ;;
         h)
             print_help
@@ -66,7 +76,7 @@ while getopts "cdrqhv" OPT; do
 done
 
 test ${FLAGS[3]} -eq 1 && \
-    exec >/dev/null 2>&1
+    exec > /dev/null 2>&1
 if [ ${FLAGS[0]} == 1 ]; then
     connect_device
 elif [ ${FLAGS[1]} == 1 ]; then
