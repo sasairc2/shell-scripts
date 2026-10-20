@@ -6,7 +6,8 @@
 # For --include and --exclude,
 # see https://tech.nitoyon.com/ja/blog/2013/03/26/rsync-include-exclude/
 # for details.
-#
+
+set -u
 
 SRC="${HOME}"
 DEST=("/Volumes/DT01ACA200-APR2019")
@@ -16,29 +17,44 @@ RSYNC="/opt/homebrew/bin/rsync"
 RSYNC_OPT="-av --delete"
 RSYNC_NICE=""
 
+print_help() {
+    echo "Usage: $(basename $0) [-nhv] [-p priority]"
+}
+
+print_version() {
+    cat <<EOF
+$0
+
+SRC="${HOME}"
+DEST="${DEST}"
+HOSTNAME="${HOSTNAME}"
+LOGFILE="${LOGFILE}"
+RSYNC="${RSYNC}"
+RSYNC_OPT="${RSYNC_OPT}"
+RSYNC_NICE="${RSYNC_NICE}"
+EOF
+}
+
 # Check options
-while getopts "npvh" OPT; do
+while getopts "np:vh" OPT; do
     case "${OPT}" in
         n)
             RSYNC_OPT="${RSYNC_OPT} --dry-run"
             ;;
         p)
-            RSYNC_NICE="nice -n 16"
-            ;;
-        v)
-            cat <<EOF
-SRC=${HOME}
-DEST=${DEST}
-HOSTNAME=${HOSTNAME}
-LOGFILE=${LOGFILE}
-RSYNC=${RSYNC}
-RSYNC_OPT=${RSYNC_OPT}
-RSYNC_NICE=${RSYNC_NICE}
-EOF
-            exit 0
+            if nice -n ${OPTARG} true > /dev/null 2>&1; then
+                RSYNC_NICE="nice -n ${OPTARG}"
+            else 
+                echo "$(basename $0): ${OPTARG}: invalid nice value" > /dev/stderr
+                exit 1
+            fi
             ;;
         h)
-            echo "$0: Usage: $0 [-npvh]"
+            print_help
+            exit 0
+            ;;
+        v)
+            print_version
             exit 0
             ;;
         \?)
